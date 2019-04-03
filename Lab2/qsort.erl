@@ -25,4 +25,3 @@ randomElems(N, Min, Max) ->
 compareSpeed(List, Fun1, Fun2) ->
  (timer:tc(Fun1, [List])/(timer:tc(Fun2, [List]))).
 
-
