@@ -52,5 +52,3 @@ onp2("cos", [A | Stack]) -> [math:cos(A) | Stack];
 onp2("tg", [A | Stack]) -> [math:tan(A) | Stack];
 onp2("ctg", [A | Stack]) -> [1/math:tan(A) | Stack];
 onp2(Key, Stack) -> [read(Key)| Stack].
-
-
