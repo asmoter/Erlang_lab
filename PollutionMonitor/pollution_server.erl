@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%%% @author Dell Latitude E7440
+%%% @author aleksandra
 %%% @copyright (C) 2019, <COMPANY>
 %%% @doc
 %%%
@@ -7,35 +7,59 @@
 %%% Created : 22. kwi 2019 13:18
 %%%-------------------------------------------------------------------
 -module(pollution_server).
--author("Dell Latitude E7440").
+-author("aleksandra").
 
 %% API
--export([start/0, stop/0]).
+-export([start/0, stop/0, init/0]).
 -export([addStation/2, addValue/4, removeValue/3, getOneValue/3, getStationMean/2,
   getDailyMean/2]).
+-export([crash/0]).
 -import(pollution, [createMonitor/0, addStation/3, addValue/5, removeValue/4, getOneValue/4,
   getStationMean/3, getDailyMean/3]).
 
 loop(P) ->
   receive
-    {Pid, {addStation, Name, Coordinates}} -> Pid ! ok,
-        New_P = addStation(Name, Coordinates, P),
-        loop(New_P);
-    {Pid, {addValue, StationID, Date, Type, Value}} -> Pid ! ok,
-        New_P = addValue(StationID, Date, Type, Value, P),
-        loop(New_P);
-    {Pid, {removeValue, StationID, Date, Type}}-> Pid ! ok,
-        New_P = removeValue(StationID, Date, Type, P),
-        loop(New_P);
-    {Pid, {getOneValue, StationID, Date, Type}} -> Pid ! ok,
-        New_P = getOneValue(StationID, Date, Type, P),
-        loop(New_P);
-    {Pid, {getStationName, StationID, Type}} -> Pid ! ok,
-      New_P = getStationMean(StationID, Type, P),
-      loop(New_P);
-    {Pid, {getDailyMean, Date, Type}} -> Pid ! ok,
-      New_P = getDailyMean(Date, Type, P),
-      loop(New_P);
+    {Pid, {addStation, Name, Coordinates}} ->  %%poprawic analogicznie pozostale
+      case addStation(Name, Coordinates, P) of
+        {error, Msg} -> Pid ! {error, Msg}, loop(P);
+        New_P -> Pid ! ok, loop(New_P)
+      end;
+
+    {Pid, {addValue, StationID, Date, Type, Value}} ->
+      case addValue(StationID, Date, Type, Value, P) of
+        {error, Msg} -> Pid ! {error, Msg}, loop(P);
+        New_P -> Pid ! ok, loop(New_P)
+      end;
+
+    {Pid, {removeValue, StationID, Date, Type}}->
+      case removeValue(StationID, Date, Type, P) of
+        {error, Msg} -> Pid ! {error, Msg},
+          loop(P);
+        New_P -> Pid ! ok, loop(New_P)
+      end;
+
+    {Pid, {getOneValue, StationID, Date, Type}} ->
+      case getOneValue(StationID, Date, Type, P) of
+        {error, Msg} -> Pid ! {error, Msg}, loop(P);
+        Val -> io:format("Station value: ~w~n", [Val]),
+          Pid ! ok, loop(P)
+      end;
+
+    {Pid, {getStationMean, StationID, Type}} ->
+      case getStationMean(StationID, Type, P) of
+        {error, Msg} -> Pid ! {error, Msg}, loop(P);
+        Mean -> io:format("Station mean: ~.2f~n", [Mean]),
+          Pid ! ok, loop(P)
+      end;
+
+    {Pid, {getDailyMean, Date, Type}} ->
+      case getDailyMean(Date, Type, P) of
+        {error, Msg} -> Pid ! {error, Msg}, loop(P);
+        Mean -> io:format("Date mean: ~.2f~n", [Mean]),
+          Pid ! ok, loop(P)
+      end;
+
+    {Pid, {crash}} -> 1/0;
     stop -> stop()
   end.
 
@@ -43,25 +67,46 @@ init()->
   P = createMonitor(),
   loop(P).
 
-start() -> spawn(server, init()).
+start() ->
+  PID = spawn(pollution_server, init, []),
+  register(server, PID).
 
 stop() -> server ! stop.
 
 addStation(Name, Coordinates) ->
-  gen_server:call(pollution_server, {addStation(Name, Coordinates)}).
+  server ! {self(), {addStation, Name, Coordinates}},
+  receive
+    Msg -> Msg
+  end.
 
 addValue(StationID, Date, Type, Value) ->
-  gen_server:call(pollution_server, {addValue(StationID, Date, Type, Value)}).
+  server ! {self(), {addValue, StationID, Date, Type, Value}},
+  receive
+    Msg -> Msg
+  end.
 
 removeValue(StationID, Date, Type) ->
-  gen_server:call(pollution_server, {removeValue(StationID, Date, Type)}).
+  server ! {self(), {removeValue, StationID, Date, Type}},
+  receive
+    Msg -> Msg
+  end.
 
 getOneValue(StationID, Date, Type) ->
-  gen_server:call(pollution_server, {getOneValue(StationID, Date, Type)}).
+  server ! {self(), {getOneValue, StationID, Date, Type}},
+  receive
+    Msg -> Msg
+  end.
 
 getStationMean(StationID, Type) ->
-  gen_server:call(pollution_server, {getStationMean(StationID, Type)}).
+  server ! {self(), {getStationMean, StationID, Type}},
+  receive
+    Msg -> Msg
+  end.
 
 getDailyMean(Date, Type) ->
-  gen_server:call(pollution_server, {getDailyMean(Date, Type)}).
+  server ! {self(), {getDailyMean, Date, Type}},
+  receive
+    Msg -> Msg
+  end.
 
+crash() -> server ! {self(), crash}.
