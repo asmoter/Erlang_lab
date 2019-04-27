@@ -41,7 +41,7 @@ loop(P) ->
     {Pid, {getOneValue, StationID, Date, Type}} ->
       case getOneValue(StationID, Date, Type, P) of
         {error, Msg} -> Pid ! {error, Msg}, loop(P);
-        Val -> io:format("Station value: ~w~n", [Val]),
+        Val -> io:format("Value: ~w~n", [Val]),
           Pid ! ok, loop(P)
       end;
 
@@ -73,40 +73,25 @@ start() ->
 
 stop() -> server ! stop.
 
-addStation(Name, Coordinates) ->
-  server ! {self(), {addStation, Name, Coordinates}},
+call(Message) ->
+  server ! {self(), Message},
   receive
-    Msg -> Msg
+    Reply -> Reply
   end.
 
-addValue(StationID, Date, Type, Value) ->
-  server ! {self(), {addValue, StationID, Date, Type, Value}},
-  receive
-    Msg -> Msg
-  end.
+addStation(Name, Coordinates) ->  call({addStation, Name, Coordinates}).
 
-removeValue(StationID, Date, Type) ->
-  server ! {self(), {removeValue, StationID, Date, Type}},
-  receive
-    Msg -> Msg
-  end.
+addValue(StationID, Date, Type, Value) ->  call({addValue, StationID, Date, Type, Value}).
 
-getOneValue(StationID, Date, Type) ->
-  server ! {self(), {getOneValue, StationID, Date, Type}},
-  receive
-    Msg -> Msg
-  end.
+removeValue(StationID, Date, Type) ->  call({removeValue, StationID, Date, Type}).
 
-getStationMean(StationID, Type) ->
-  server ! {self(), {getStationMean, StationID, Type}},
-  receive
-    Msg -> Msg
-  end.
+getOneValue(StationID, Date, Type) ->  call({getOneValue, StationID, Date, Type}).
 
-getDailyMean(Date, Type) ->
-  server ! {self(), {getDailyMean, Date, Type}},
-  receive
-    Msg -> Msg
-  end.
+getStationMean(StationID, Type) ->  call({getStationMean, StationID, Type}).
+
+getDailyMean(Date, Type) ->  call({getDailyMean, Date, Type}).
 
 crash() -> server ! {self(), crash}.
+
+
+
