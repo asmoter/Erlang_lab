@@ -1,11 +1,14 @@
 %%%-------------------------------------------------------------------
-%%% @author Dell Latitude E7440
+%%% @author asmoter
 %%% @copyright (C) 2019, <COMPANY>
 %%% @doc
 %%%
 %%% @end
-%%% Created : 30. mar 2019 16:44
+%%% Created : 11. maj 2019 19:01
 %%%-------------------------------------------------------------------
+
+%% API
+
 %% kod powinien sie zmiescic na 2 ekranach: pattern matching,
 %% nie uzywamy ifow, tylko caseow do wywolania wlasnych funkcji
 %% gdzie sie da istniejace funkcje wyzszego rzedu albo anonimowe
@@ -20,13 +23,13 @@
 %% caly czas przekazujemy aktualne dane - nie jako zmienna globalna
 %% komunikaty bledow - dwuelementowa krotka {atom error, komunikat}
 
--module('pollution').
+-module(pollution).
+-author("asmoter").
 
-%% API
-
--export([createMonitor/0, addStation/3, addValue/5, removeValue/4, getOneValue/4,
-  getStationMean/3, getDailyMean/3]).
+-export([addStation/3, addValue/5, removeValue/4, getOneValue/4, getStationMean/3, getDailyMean/3]).
 -export([getMinimumDistanceStations/1]).
+-export([createMonitor/0]).
+
 -record(station, {name, coordinates}).
 -record(reading, {station, date, type}).
 -record(monitor, {stationsMap, readingsMap}).

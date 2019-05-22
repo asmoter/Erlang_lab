@@ -1,20 +1,17 @@
 %%%-------------------------------------------------------------------
-%%% @author aleksandra
+%%% @author asmoter
 %%% @copyright (C) 2019, <COMPANY>
 %%% @doc
 %%%
 %%% @end
-%%% Created : 22. kwi 2019 13:18
+%%% Created : 11. maj 2019 19:14
 %%%-------------------------------------------------------------------
 -module(pollution_server_sup).
--author("aleksandra").
-
-%% dodac funkcje crashujaca, ktora ma zepsuc serwer
-%% potem postawic serwer na nogi
+-author("asmoter").
 
 %% API
--export([start/0, stop/0, loop/0]).
 
+-export([start/0, stop/0, loop/0]).
 -export([crash/0]).
 
 loop() ->

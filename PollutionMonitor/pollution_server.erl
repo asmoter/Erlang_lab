@@ -1,21 +1,21 @@
 %%%-------------------------------------------------------------------
-%%% @author aleksandra
+%%% @author asmoter
 %%% @copyright (C) 2019, <COMPANY>
 %%% @doc
 %%%
 %%% @end
-%%% Created : 22. kwi 2019 13:18
+%%% Created : 11. maj 2019 19:12
 %%%-------------------------------------------------------------------
 -module(pollution_server).
--author("aleksandra").
-
+-author("asmoter").
 %% API
+
 -export([start/0, stop/0, init/0]).
 -export([addStation/2, addValue/4, removeValue/3, getOneValue/3, getStationMean/2,
   getDailyMean/2]).
 -export([crash/0]).
 -import(pollution, [createMonitor/0, addStation/3, addValue/5, removeValue/4, getOneValue/4,
-  getStationMean/3, getDailyMean/3]).
+getStationMean/3, getDailyMean/3]).
 
 loop(P) ->
   receive
@@ -92,6 +92,3 @@ getStationMean(StationID, Type) ->  call({getStationMean, StationID, Type}).
 getDailyMean(Date, Type) ->  call({getDailyMean, Date, Type}).
 
 crash() -> server ! {self(), crash}.
-
-
-
